@@ -171,46 +171,10 @@ Authentication is implemented via a JWT token issued upon login (`/api/auth/logi
 
 ---
 
-## What I Did NOT Implement
 
-- **Payment/checkout** — out of scope per requirements
-- **Self-service seller registration & KYC** — sellers and users are pre-seeded
-- **Admin panel** — no seller approval workflow UI
-- **Image upload** — products use `image_url` field but no direct upload mechanism
-- **Notifications** — no email/SMS
-- **Full-text search** — using ILIKE with trigram index (sufficient for MVP)
-- **Caching** — no Redis layer
-- **API versioning** — not needed for MVP
 
----
 
-## What I Would Improve With More Time
 
-1. **Elasticsearch** — Replace ILIKE search with full-text search supporting typo tolerance, synonyms, and faceted results.
-2. **Redis caching** — Cache product detail pages and category lists with event-driven invalidation.
-3. **Cursor-based pagination** — Replace OFFSET pagination with keyset pagination for consistent performance at scale.
-4. **API rate limiting** — Prevent search endpoint abuse.
-5. **Event-driven architecture** — Listing changes publish events that update search indexes, caches, and analytics.
-6. **JWT authentication** — Replace `X-Seller-Id` header with proper token-based auth.
-7. **Comprehensive integration tests** — Using Testcontainers with a real PostgreSQL instance.
-8. **OpenAPI documentation** — Auto-generated API docs with Springdoc.
-9. **Audit logging** — Track who changed what and when for seller listings.
-
----
-
-## Scale Considerations (1M products, 10M listings)
-
-| Current Approach | At Scale | What Changes |
-|:---|:---|:---|
-| ILIKE with GIN trigram index | Elasticsearch cluster | Async indexing pipeline |
-| OFFSET pagination | Keyset/cursor pagination | `WHERE id > :lastId LIMIT :size` |
-| Single PostgreSQL | Read replicas + connection pooling (PgBouncer) | Route buyer reads to replicas |
-| JPA Specifications | Elasticsearch Query DSL | Richer faceted search |
-| Synchronous writes | Event-driven (Kafka/RabbitMQ) | Decouple write from index updates |
-| No caching | Redis with TTL + invalidation | Cache hot product pages |
-| COUNT(*) for total | Approximate counts or remove total | Avoid expensive full-table scans |
-
----
 
 ## Running Tests
 
